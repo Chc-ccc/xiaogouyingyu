@@ -5,6 +5,7 @@
 
 ; AppId：首次生成工程时确定的固定 GUID，后续所有版本沿用，不得更换或按版本/时间动态生成。
 ; 双击新版安装包即识别为升级、直接覆盖程序文件，不要求先卸载。
+; 注意：AppId 是普通字符串，不含花括号；{#MyAppId} 由 Inno 预处理器展开为字面值。
 #define MyAppId '3E702BA5-0A7E-49E0-B613-F3D2C56675C0'
 #define MyAppName '小狗英语'
 #define MyAppPublisher '小狗英语'
@@ -16,8 +17,8 @@
 #endif
 
 [Setup]
-; Inno 转义写法 {{#MyAppId}} 引用常量，AppId 跨版本固定
-AppId={{#MyAppId}}
+; 用预处理器指令 {#MyAppId} 展开为固定 GUID 字符串，AppId 跨版本固定
+AppId={#MyAppId}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 AppVerName={#MyAppName} {#MyAppVersion}
