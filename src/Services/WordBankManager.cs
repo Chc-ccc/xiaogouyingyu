@@ -224,11 +224,9 @@ public sealed class WordBankManager
         => File.WriteAllText(path, string.Join("\n", lines), new UTF8Encoding(false));
 }
 
-/// <summary>WordEntry 的辅助扩展：由年级定位 md 路径（FilePath 可能为空，故按约定重算）。</summary>
+/// <summary>WordEntry 的辅助扩展：由年级按约定重算 md 路径（WordEntry 本身不存 FilePath）。</summary>
 internal static class WordEntryPathExtensions
 {
     public static string FilePathOfGrade(this WordEntry e)
-        => !string.IsNullOrEmpty(e.FilePath)
-            ? e.FilePath
-            : Path.Combine(AppPaths.WordBankDir, e.Grade + ".md");
+        => Path.Combine(AppPaths.WordBankDir, e.Grade + ".md");
 }

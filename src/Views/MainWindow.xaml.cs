@@ -152,23 +152,61 @@ public partial class MainWindow : Window
         base.OnClosing(e);
     }
 
-    /// <summary>MediaElement 实现音频输出接口。</summary>
+    /// <summary>
+    /// MediaElement 实现音频输出接口。
+    /// 注意：WPF 的 MediaElement 没有 UWP 那种 SetSource(Stream, mimeType) 方法，
+    /// 唯一可靠的做法是把 WinRT 合成流落盘为临时文件，再把 Source 指向该文件。
+    /// 每次播放生成唯一文件并自动清理上一次，避免无限堆积；文件放系统临时目录，不写用户数据区。
+    /// </summary>
     private sealed class MediaElementAudio : IAudioOutput
     {
         private readonly MediaElement _media;
+        private string? _lastTempFile;
+
         public MediaElementAudio(MediaElement media) => _media = media;
 
         public void Play(Stream audioStream, string contentType)
         {
-            // 必须在 UI 线程设置源
+            // 先落盘为临时文件（放在 UI 线程外做 IO，避免卡顿）
+            var ext = (contentType ?? "").Contains("wav", StringComparison.OrdinalIgnoreCase) ? ".wav" : ".mp3";
+            var tempFile = Path.Combine(Path.GetTempPath(), "xgyy-tts-" + Guid.NewGuid().ToString("N") + ext);
+            try
+            {
+                using (var fs = new FileStream(tempFile, FileMode.Create, FileAccess.Write))
+                    audioStream.CopyTo(fs);
+                audioStream.Dispose();
+            }
+            catch
+            {
+                try { File.Delete(tempFile); } catch { /* 清理失败可忽略 */ }
+                return;
+            }
+
+            // 必须在 UI 线程设置 Source 并播放
             _media.Dispatcher.Invoke(() =>
             {
-                _media.Stop();
-                _media.SetSource(audioStream, contentType);
-                _media.Play();
+                try
+                {
+                    _media.Stop();
+                    // 释放上一次的临时文件（若仍被占用则下次再清）
+                    TryDelete(_lastTempFile);
+                    _lastTempFile = tempFile;
+                    _media.Source = new Uri(tempFile, UriKind.Absolute);
+                    _media.Play();
+                }
+                catch
+                {
+                    TryDelete(tempFile);
+                }
             });
         }
 
         public void Stop() => _media.Dispatcher.Invoke(() => _media.Stop());
+
+        private static void TryDelete(string? path)
+        {
+            if (string.IsNullOrEmpty(path)) return;
+            try { File.Delete(path); } catch { /* 文件可能被占用，忽略 */ }
+        }
     }
 }
