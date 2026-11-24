@@ -108,6 +108,7 @@ public sealed class BackupService
         try
         {
             using var zip = ZipFile.OpenRead(zipPath);
+using System.IO;
             foreach (var entry in zip.Entries)
             {
                 if (entry.FullName == "manifest.json" || string.IsNullOrEmpty(entry.Name)) continue;

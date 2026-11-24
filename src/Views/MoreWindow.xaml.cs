@@ -7,6 +7,7 @@ using XiaoGouYingYu.ViewModels;
 using MessageBox = System.Windows.MessageBox;
 using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
 using SaveFileDialog = Microsoft.Win32.SaveFileDialog;
+using System.IO;
 
 namespace XiaoGouYingYu;
 
