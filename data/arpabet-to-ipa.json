@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "description": "ARPAbet -> IPA 映射表。CMU 词典的音素是 ARPAbet（带 0/1/2 重音数字），不能直接塞进 SSML phoneme；程序内部把 AE->æ、R->ɹ 等逐项转成 IPA，重音 1/2 转 IPA 重音符号、0 不标。phoneme 内容永不显示给孩子。",
+  "alphabet": "ipa",
+  "segments": {
+    "AA": "ɑ", "AE": "æ", "AH": "ʌ", "AO": "ɔ", "AW": "aʊ", "AY": "aɪ",
+    "EH": "ɛ", "ER": "ɝ", "EY": "eɪ", "IH": "ɪ", "IY": "i",
+    "OW": "oʊ", "OY": "ɔɪ", "UH": "ʊ", "UW": "u",
+    "B": "b", "CH": "tʃ", "D": "d", "DH": "ð", "F": "f", "G": "ɡ",
+    "HH": "h", "JH": "dʒ", "K": "k", "L": "l", "M": "m", "N": "n",
+    "NG": "ŋ", "P": "p", "R": "ɹ", "S": "s", "SH": "ʃ", "T": "t",
+    "TH": "θ", "V": "v", "W": "w", "Y": "j", "Z": "z", "ZH": "ʒ"
+  },
+  "stressMarks": { "0": "", "1": "ˈ", "2": "ˌ" },
+  "weakVowels": {
+    "AH0": "ə",
+    "ER0": "ɚ"
+  },
+  "note": "弱读元音单独列出：AH0 在弱读音节读作 schwa（ə），ER0 读作 ɚ；若音素带 0 重音且命中 weakVowels，优先用弱读值，否则用 base 映射且 0 不标重音。"
+}

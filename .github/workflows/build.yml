@@ -1,0 +1,98 @@
+name: 构建小狗英语安装包
+
+# 触发：推送代码只更新 Artifacts；推送版本 tag（如 v1.0.0）才创建 Release 并附 Setup.exe
+on:
+  push:
+    branches: [ main, master ]
+    tags: [ 'v*' ]
+  workflow_dispatch:
+
+permissions:
+  contents: write   # 创建 Release 需要写权限，必须显式声明
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: 检出源码
+        uses: actions/checkout@v4
+
+      - name: 安装 .NET 8 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: 从 csproj 读取版本号
+        id: ver
+        shell: pwsh
+        run: |
+          $xml = [xml](Get-Content -Raw 'src/XiaoGouYingYu.csproj')
+          $version = $xml.Project.PropertyGroup.Version | Where-Object { $_ } | Select-Object -First 1
+          if (-not $version) { $version = '1.0.0' }
+          echo "value=$version" >> $env:GITHUB_OUTPUT
+          echo "csproj 版本号: $version"
+
+      # 单文件 exe 载荷：PublishSingleFile=true 必须保持，CMU 词典/内置音节/ARPAbet 映射已嵌入程序集
+      - name: 发布 self-contained 单文件 exe
+        shell: pwsh
+        run: |
+          $out = 'artifacts/publish'
+          New-Item -ItemType Directory -Force -Path $out | Out-Null
+          dotnet publish 'src/XiaoGouYingYu.csproj' -c Release -r win-x64 `
+            --self-contained true `
+            -p:PublishSingleFile=true `
+            -p:IncludeNativeLibrariesForSelfExtract=true `
+            -p:EnableCompressionInSingleFile=true `
+            -o $out
+          if ($LASTEXITCODE -ne 0) { throw "dotnet publish 失败" }
+          Get-ChildItem $out | Select-Object Name, Length
+
+      - name: 定位 ISCC（预装优先，缺失才下载兜底）
+        id: iscc
+        shell: pwsh
+        run: |
+          $iscc = $null
+          $candidates = @(
+            "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe",
+            "$env:ProgramFiles\Inno Setup 6\ISCC.exe"
+          )
+          foreach ($c in $candidates) { if (Test-Path $c) { $iscc = $c; break } }
+          $cmd = Get-Command iscc -ErrorAction SilentlyContinue
+          if (-not $iscc -and $cmd) { $iscc = $cmd.Source }
+
+          if (-not $iscc) {
+            Write-Host 'runner 未找到预装 ISCC，下载官方安装包静默安装作为兜底...'
+            $installer = "$env:RUNNER_TEMP\innosetup.exe"
+            Invoke-WebRequest -Uri 'https://files.jrsoftware.org/is/6/innosetup-6.7.1.exe' -OutFile $installer
+            Start-Process -FilePath $installer -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART' -Wait
+            $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+            if (-not (Test-Path $iscc)) { throw "ISCC 安装失败" }
+          }
+          echo "path=$iscc" >> $env:GITHUB_OUTPUT
+          Write-Host "ISCC 路径: $iscc"
+
+      - name: 编译 Inno Setup 安装包
+        shell: pwsh
+        run: |
+          $iscc = '${{ steps.iscc.outputs.path }}'
+          $ver = '${{ steps.ver.outputs.value }}'
+          $iss = '.github/installer/setup.iss'
+          & $iscc "/DMyAppVersion=$ver" $iss
+          if ($LASTEXITCODE -ne 0) { throw "ISCC 编译失败" }
+          Get-ChildItem artifacts -Filter '*.exe' | Select-Object Name, Length
+
+      - name: 上传安装包到 Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: XiaoGouYingYu-Setup-${{ steps.ver.outputs.value }}
+          path: artifacts/*.exe
+          if-no-files-found: error
+
+      # 仅推送 tag 时创建 Release；普通提交只更新 Artifacts，避免重复发布
+      - name: 创建 Release 并附上 Setup.exe
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/*.exe
+          generate_release_notes: true
+          name: 小狗英语 ${{ steps.ver.outputs.value }}

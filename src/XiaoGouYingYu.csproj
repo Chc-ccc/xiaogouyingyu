@@ -1,0 +1,58 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    项目文件：小狗英语（C# WPF 桌面程序）
+    目标框架 net8.0-windows10.0.19041.0：这是 net8.0-windows 家族中带具体 SDK 版本的写法，
+    只有当 TFM 带 Windows SDK 版本时，Windows.Media.SpeechSynthesis（WinRT 原生语音）投影才可用。
+    改成不带版本号的 net8.0-windows 会导致编译期找不到 WinRT 语音类型——不要改。
+  -->
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+
+    <!-- 版本号唯一真源：tag / 安装包版本 / 界面显示都对齐这里（见 README） -->
+    <Version>1.0.0</Version>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+
+    <AssemblyName>XiaoGouYingYu</AssemblyName>
+    <RootNamespace>XiaoGouYingYu</RootNamespace>
+    <!-- 入口点由 App.xaml（ApplicationDefinition）自动生成，不显式指定 StartupObject -->
+    <ApplicationIcon />
+  </PropertyGroup>
+
+  <!--
+    内置只读资源随 exe 一起编译进程序集（single-file 载荷的一部分）。
+    这些是"出厂只读资源"，不是用户数据；用户数据一律写用户目录，见 Config.UserDataRoot。
+    LogicalName 是运行时 GetManifestResourceStream 使用的固定名字，改动需同步 ResourceNames.cs。
+  -->
+  <ItemGroup>
+    <!-- GBK/GB2312 词库转码所需的官方 BCL 包（非第三方，随 self-contained 打包，家长无需本地环境） -->
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="..\data\译林三上.md" LogicalName="XiaoGouYingYu.Res.译林三上.md" />
+    <EmbeddedResource Include="..\data\syllables.builtin.json" LogicalName="XiaoGouYingYu.Res.syllables.builtin.json" />
+    <EmbeddedResource Include="..\data\arpabet-to-ipa.json" LogicalName="XiaoGouYingYu.Res.arpabet-to-ipa.json" />
+    <EmbeddedResource Include="..\data\cmu-dict.json" LogicalName="XiaoGouYingYu.Res.cmu-dict.json" />
+  </ItemGroup>
+
+  <!--
+    发布参数：GitHub Actions 工作流在命令行再次显式传这些参数，双重保险。
+    PublishSingleFile=true 必须保持，single-file exe 是 Inno Setup 的唯一载荷，不能关。
+  -->
+  <PropertyGroup>
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>true</SelfContained>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    <PublishTrimmed>false</PublishTrimmed>
+  </PropertyGroup>
+
+</Project>

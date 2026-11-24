@@ -1,0 +1,15 @@
+# 构建产物
+artifacts/
+bin/
+obj/
+*.user
+
+# Visual Studio / Rider
+.vs/
+.idea/
+
+# 系统
+Thumbs.db
+desktop.ini
+
+# 注意：.ai-memory 与源码一并保留（工程交接记忆），不忽略

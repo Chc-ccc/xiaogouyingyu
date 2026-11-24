@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    TTS 前置最小验证程序（对应提示词 <tech_decisions> 第二条 / task 第 5 步）。
+    以最终交付形态（self-contained 单文件）跑两件事：
+      ① 枚举 en-US 声音，确认能看到 Natural / Neural 神经语音；
+      ② 朗读单个字形段（mo / ther），确认不会被读成字母名。
+    两项通过后才铺开四模式。用 dotnet run 或按 README 命令 publish 成单文件后运行。
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <UseWPF>false</UseWPF>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>true</SelfContained>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+  </PropertyGroup>
+</Project>

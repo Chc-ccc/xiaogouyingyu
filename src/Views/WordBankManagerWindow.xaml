@@ -1,0 +1,47 @@
+<Window x:Class="XiaoGouYingYu.WordBankManagerWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="词库管理" Height="640" Width="900" WindowStartupLocation="CenterOwner" Background="#FFFDF8">
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Text="词库管理" FontSize="24" FontWeight="Bold" Foreground="#E67E22" Margin="0,0,0,10"/>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,10">
+            <TextBlock Text="年级" FontSize="18" VerticalAlignment="Center" Margin="0,0,6,0"/>
+            <ComboBox x:Name="GradeCombo" Width="150" Height="38" FontSize="17"
+                      ItemsSource="{Binding Grades}" SelectionChanged="GradeCombo_SelectionChanged"/>
+            <TextBlock Text="搜索" FontSize="18" VerticalAlignment="Center" Margin="16,0,6,0"/>
+            <TextBox x:Name="SearchBox" Width="180" Height="38" FontSize="17" TextChanged="SearchBox_TextChanged"/>
+            <Button Content="新增词条" Width="120" Height="38" FontSize="17" Margin="16,0,0,0" Click="Add_Click"/>
+        </StackPanel>
+
+        <DataGrid x:Name="EntryGrid" Grid.Row="2" ItemsSource="{Binding Rows}" AutoGenerateColumns="False"
+                  IsReadOnly="True" FontSize="16" SelectionMode="Single" HeadersVisibility="Column">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Unit" Binding="{Binding Unit}" Width="60"/>
+                <DataGridTextColumn Header="主答案" Binding="{Binding English}" Width="180"/>
+                <DataGridTextColumn Header="中文" Binding="{Binding Chinese}" Width="*"/>
+                <DataGridTextColumn Header="类别" Binding="{Binding Category}" Width="90"/>
+                <DataGridTextColumn Header="音节" Binding="{Binding Syllables}" Width="160"/>
+                <DataGridTextColumn Header="状态" Binding="{Binding Status}" Width="90"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,10,0,0">
+            <Button Content="改英文" Width="110" Height="42" FontSize="17" Click="ChangeEnglish_Click"/>
+            <Button Content="改中文" Width="110" Height="42" FontSize="17" Margin="8,0,0,0" Click="ChangeChinese_Click"/>
+            <Button Content="调单元" Width="110" Height="42" FontSize="17" Margin="8,0,0,0" Click="ChangeUnit_Click"/>
+            <Button Content="改音节" Width="110" Height="42" FontSize="17" Margin="8,0,0,0" Click="ChangeSyllable_Click"/>
+            <Button Content="标记待复习" Width="150" Height="42" FontSize="17" Margin="8,0,0,0" Click="MarkReview_Click"/>
+            <Button Content="退回新词" Width="120" Height="42" FontSize="17" Margin="8,0,0,0" Click="MarkNew_Click"/>
+            <Button Content="删除词条" Width="120" Height="42" FontSize="17" Margin="24,0,0,0" Click="Delete_Click" Foreground="Red"/>
+            <Button Content="关闭" Width="90" Height="42" FontSize="17" Margin="16,0,0,0" Click="Close_Click" HorizontalAlignment="Right"/>
+        </StackPanel>
+    </Grid>
+</Window>
