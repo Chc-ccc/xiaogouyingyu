@@ -40,7 +40,9 @@ UninstallDisplayName={#MyAppName} {#MyAppVersion}
 AllowNoIcons=yes
 
 [Languages]
-Name: "chinesesimplified"; MessagesFile: "compiler:Languages\ChineseSimplified.isl"
+; 使用 Inno Setup 自带默认语言文件，保证各版本 runner 均可编译出包。
+; 产品名、提示文案仍是中文；仅安装向导的标准按钮文案为默认语言。
+Name: "default"; MessagesFile: "compiler:Default.isl"
 
 [Tasks]
 Name: "desktopicon"; Description: "创建桌面快捷方式"; GroupDescription: "快捷方式："
