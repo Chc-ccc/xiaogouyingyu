@@ -2,6 +2,7 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Media.SpeechSynthesis;
 using Windows.Storage.Streams;
 using XiaoGouYingYu.Config;
+using System.IO;
 
 namespace XiaoGouYingYu.Services;
 
